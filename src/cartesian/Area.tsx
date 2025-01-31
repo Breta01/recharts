@@ -80,6 +80,7 @@ interface AreaProps extends InternalAreaProps {
   animationBegin?: number;
   animationDuration?: AnimationDuration;
   animationEasing?: AnimationTiming;
+  animationEndState?: number;
   animationId?: number;
   id?: string;
 }
@@ -117,6 +118,7 @@ export class Area extends PureComponent<Props, State> {
     animationBegin: 0,
     animationDuration: 1500,
     animationEasing: 'ease',
+    animationEndState: 1,
   };
 
   static getBaseValue = (props: Props, item: Area, xAxis: Props['xAxis'], yAxis: Props['yAxis']): number => {
@@ -309,10 +311,10 @@ export class Area extends PureComponent<Props, State> {
   };
 
   renderDots(needClip: boolean, clipDot: boolean, clipPathId: string) {
-    const { isAnimationActive } = this.props;
+    const { isAnimationActive, animationEndState } = this.props;
     const { isAnimationFinished } = this.state;
 
-    if (isAnimationActive && !isAnimationFinished) {
+    if (isAnimationActive && (!isAnimationFinished || animationEndState < 1)) {
       return null;
     }
 
@@ -453,8 +455,16 @@ export class Area extends PureComponent<Props, State> {
   }
 
   renderAreaWithAnimation(needClip: boolean, clipPathId: string) {
-    const { points, baseLine, isAnimationActive, animationBegin, animationDuration, animationEasing, animationId } =
-      this.props;
+    const {
+      points,
+      baseLine,
+      isAnimationActive,
+      animationBegin,
+      animationDuration,
+      animationEasing,
+      animationEndState,
+      animationId,
+    } = this.props;
     const { prevPoints, prevBaseLine } = this.state;
     // const clipPathId = isNil(id) ? this.id : id;
 
@@ -465,7 +475,7 @@ export class Area extends PureComponent<Props, State> {
         isActive={isAnimationActive}
         easing={animationEasing}
         from={{ t: 0 }}
-        to={{ t: 1 }}
+        to={{ t: animationEndState }}
         key={`area-${animationId}`}
         onAnimationEnd={this.handleAnimationEnd}
         onAnimationStart={this.handleAnimationStart}

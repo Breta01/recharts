@@ -88,6 +88,7 @@ export interface BarProps extends InternalBarProps {
   animationBegin?: number;
   animationDuration?: AnimationDuration;
   animationEasing?: AnimationTiming;
+  animationEndState?: number;
   animationId?: number;
   id?: string;
   label?: ImplicitLabelType;
@@ -118,6 +119,7 @@ export class Bar extends PureComponent<Props, State> {
     animationBegin: 0,
     animationDuration: 400,
     animationEasing: 'ease',
+    animationEndState: 1,
   };
 
   /**
@@ -318,8 +320,16 @@ export class Bar extends PureComponent<Props, State> {
   }
 
   renderRectanglesWithAnimation() {
-    const { data, layout, isAnimationActive, animationBegin, animationDuration, animationEasing, animationId } =
-      this.props;
+    const {
+      data,
+      layout,
+      isAnimationActive,
+      animationBegin,
+      animationDuration,
+      animationEasing,
+      animationEndState,
+      animationId,
+    } = this.props;
     const { prevData } = this.state;
 
     return (
@@ -329,7 +339,7 @@ export class Bar extends PureComponent<Props, State> {
         isActive={isAnimationActive}
         easing={animationEasing}
         from={{ t: 0 }}
-        to={{ t: 1 }}
+        to={{ t: animationEndState }}
         key={`bar-${animationId}`}
         onAnimationEnd={this.handleAnimationEnd}
         onAnimationStart={this.handleAnimationStart}
@@ -423,7 +433,7 @@ export class Bar extends PureComponent<Props, State> {
   }
 
   renderErrorBar(needClip: boolean, clipPathId: string) {
-    if (this.props.isAnimationActive && !this.state.isAnimationFinished) {
+    if (this.props.isAnimationActive && (!this.state.isAnimationFinished || this.props.animationEndState < 1)) {
       return null;
     }
 

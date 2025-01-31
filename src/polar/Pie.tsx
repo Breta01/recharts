@@ -103,6 +103,7 @@ interface PieProps extends PieDef {
   isAnimationActive?: boolean;
   animationBegin?: number;
   animationDuration?: AnimationDuration;
+  animationEndState?: number;
   onAnimationEnd?: () => void;
   onAnimationStart?: () => void;
   id?: string;
@@ -159,6 +160,7 @@ export class Pie extends PureComponent<Props, State> {
     animationBegin: 400,
     animationDuration: 1500,
     animationEasing: 'ease',
+    animationEndState: 0.6,
     nameKey: 'name',
     blendStroke: false,
     rootTabIndex: 0,
@@ -440,9 +442,9 @@ export class Pie extends PureComponent<Props, State> {
   }
 
   renderLabels(sectors: PieSectorDataItem[]) {
-    const { isAnimationActive } = this.props;
+    const { isAnimationActive, animationEndState } = this.props;
 
-    if (isAnimationActive && !this.state.isAnimationFinished) {
+    if (isAnimationActive && (!this.state.isAnimationFinished || animationEndState < 1)) {
       return null;
     }
     const { label, labelLine, dataKey, valueKey } = this.props;
@@ -524,7 +526,15 @@ export class Pie extends PureComponent<Props, State> {
   }
 
   renderSectorsWithAnimation() {
-    const { sectors, isAnimationActive, animationBegin, animationDuration, animationEasing, animationId } = this.props;
+    const {
+      sectors,
+      isAnimationActive,
+      animationBegin,
+      animationDuration,
+      animationEasing,
+      animationEndState,
+      animationId,
+    } = this.props;
 
     const { prevSectors, prevIsAnimationActive } = this.state;
 
@@ -535,7 +545,7 @@ export class Pie extends PureComponent<Props, State> {
         isActive={isAnimationActive}
         easing={animationEasing}
         from={{ t: 0 }}
-        to={{ t: 1 }}
+        to={{ t: animationEndState }}
         key={`pie-${animationId}-${prevIsAnimationActive}`}
         onAnimationStart={this.handleAnimationStart}
         onAnimationEnd={this.handleAnimationEnd}

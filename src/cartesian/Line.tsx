@@ -76,6 +76,7 @@ interface LineProps extends InternalLineProps {
   animationBegin?: number;
   animationDuration?: AnimationDuration;
   animationEasing?: AnimationTiming;
+  animationEndState?: number;
   animationId?: number;
   id?: string;
   label?: ImplicitLabelType;
@@ -110,6 +111,7 @@ export class Line extends PureComponent<Props, State> {
     animationBegin: 0,
     animationDuration: 1500,
     animationEasing: 'ease',
+    animationEndState: 1,
     hide: false,
     label: false,
   };
@@ -285,7 +287,7 @@ export class Line extends PureComponent<Props, State> {
   };
 
   renderErrorBar(needClip: boolean, clipPathId: string) {
-    if (this.props.isAnimationActive && !this.state.isAnimationFinished) {
+    if (this.props.isAnimationActive && (!this.state.isAnimationFinished || this.props.animationEndState < 1)) {
       return null;
     }
 
@@ -342,9 +344,9 @@ export class Line extends PureComponent<Props, State> {
   }
 
   renderDots(needClip: boolean, clipDot: boolean, clipPathId: string) {
-    const { isAnimationActive } = this.props;
+    const { isAnimationActive, animationEndState } = this.props;
 
-    if (isAnimationActive && !this.state.isAnimationFinished) {
+    if (isAnimationActive && (!this.state.isAnimationFinished || animationEndState < 1)) {
       return null;
     }
     const { dot, points, dataKey } = this.props;
@@ -407,6 +409,7 @@ export class Line extends PureComponent<Props, State> {
       animationBegin,
       animationDuration,
       animationEasing,
+      animationEndState,
       animationId,
       animateNewValues,
       width,
@@ -421,7 +424,7 @@ export class Line extends PureComponent<Props, State> {
         isActive={isAnimationActive}
         easing={animationEasing}
         from={{ t: 0 }}
-        to={{ t: 1 }}
+        to={{ t: animationEndState }}
         key={`line-${animationId}`}
         onAnimationEnd={this.handleAnimationEnd}
         onAnimationStart={this.handleAnimationStart}
