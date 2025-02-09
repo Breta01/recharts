@@ -421,7 +421,7 @@ export class Line extends PureComponent<Props, State> {
       <Animate
         begin={animationBegin}
         duration={animationDuration}
-        isActive={isAnimationActive}
+        isActive={isAnimationActive && animationDuration > 0}
         easing={animationEasing}
         from={{ t: 0 }}
         to={{ t: animationEndState }}
